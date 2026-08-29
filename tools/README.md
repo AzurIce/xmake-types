@@ -1,5 +1,23 @@
 # tools/
 
+## gen_release.sh
+
+版本发布流水线：为指定 xmake 版本生成注解 orphan 分支（`xmake/<version>`，单根提交）并推送。
+新版本发布后跑一条命令即可：
+
+```bash
+# 在 xmake-types 仓库根（main 分支、工作区干净）执行
+tools/gen_release.sh 3.1.1            # 一个或多个版本
+tools/gen_release.sh 3.0.9 2.9.9      # 批量
+```
+
+每个版本：下载 tarball（带重试，缓存于 `$XMAKE_SRC_CACHE`）→ `gen_annotations.py --docs`
+（docs commit 按发布日期自动映射）→ 建 orphan 分支 → push。已存在的远程分支自动跳过；
+某版本失败记录原因并继续。生成产物保留在 `$XMAKE_GEN_OUT/<version>/` 供抽查验证。
+
+环境变量：`XMAKE_DOCS_REPO`（默认 /tmp/xmake-docs，需全量历史）、`XMAKE_SRC_CACHE`
+（默认 /tmp/xmake-src）、`XMAKE_GEN_OUT`（默认 /tmp/xmake-gen）、`https_proxy`（下载/推送代理）。
+
 ## gen_annotations.py
 
 纯源码驱动的注解生成器（python3，无三方依赖，不走 xmake 运行时）：静态解析 xmake 源码，
