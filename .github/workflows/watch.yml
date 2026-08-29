@@ -1,0 +1,50 @@
+name: watch
+
+# 每天检查 xmake-io/xmake 是否有新 tag（v2.9.x / v3.x 系列），
+# 对本仓库还没有对应 xmake/<version> 分支的版本，逐个调用 generate.yml 生成。
+
+on:
+  schedule:
+    - cron: "43 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: watch
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      missing: ${{ steps.diff.outputs.missing }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: 对比 tag 与已有分支，输出缺失版本
+        id: diff
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh api repos/xmake-io/xmake/tags --paginate -q '.[].name' \
+            | grep -E '^v(2\.9\.[0-9]+|3\.[0-9]+\.[0-9]+)$' | sed 's/^v//' | sort > wanted.txt
+          git ls-remote --heads origin 'xmake/*' | awk -F/ '{print $3}' | sort > existing.txt
+          comm -13 existing.txt wanted.txt | tee missing.txt
+          missing="$(jq -R . missing.txt | jq -sc .)"
+          echo "missing=$missing" >> "$GITHUB_OUTPUT"
+          echo "缺失版本: $missing"
+
+  generate:
+    needs: detect
+    if: needs.detect.outputs.missing != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        tag: ${{ fromJSON(needs.detect.outputs.missing) }}
+    uses: ./.github/workflows/generate.yml
+    with:
+      tag: ${{ matrix.tag }}

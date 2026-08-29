@@ -1,0 +1,89 @@
+name: generate
+
+# 为单个 xmake 版本生成注解 orphan 分支（xmake/<tag>，单根提交）并推送。
+# 手动触发（workflow_dispatch）或由 watch.yml 调用（workflow_call）。
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "xmake 版本，如 3.1.2（不带 v）"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gen-${{ inputs.tag }}
+
+env:
+  LUA_LS_VERSION: "3.19.1"
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: 设置路径环境变量（runner.temp 只能在步骤内展开）
+        run: |
+          {
+            echo "XMAKE_DOCS_REPO=$RUNNER_TEMP/xmake-docs"
+            echo "XMAKE_SRC_CACHE=$RUNNER_TEMP/xmake-src"
+            echo "XMAKE_GEN_OUT=$RUNNER_TEMP/xmake-gen"
+          } >> "$GITHUB_ENV"
+
+      - name: 克隆 xmake-docs（完整历史，docs commit 按发布日期映射需要）
+        run: git clone https://github.com/xmake-io/xmake-docs "$XMAKE_DOCS_REPO"
+
+      - name: 生成并推送 xmake/${{ inputs.tag }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: tools/gen_release.sh "${{ inputs.tag }}"
+
+      - name: Smoke test（lua-language-server --check 最小样例）
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          LIB="$XMAKE_GEN_OUT/${{ inputs.tag }}/library"
+          if [ ! -d "$LIB" ]; then
+            # 远程分支已存在时 gen_release.sh 会跳过生成（无本地产物），
+            # 从已有的 xmake/<tag> 分支取 library 做 smoke test
+            git fetch -q origin "xmake/${{ inputs.tag }}"
+            mkdir -p "$RUNNER_TEMP/existing"
+            git archive FETCH_HEAD library | tar -x -C "$RUNNER_TEMP/existing"
+            LIB="$RUNNER_TEMP/existing/library"
+          fi
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/luals.tar.gz" \
+            "https://github.com/LuaLS/lua-language-server/releases/download/${LUA_LS_VERSION}/lua-language-server-${LUA_LS_VERSION}-linux-x64.tar.gz"
+          mkdir -p "$RUNNER_TEMP/luals"
+          tar xzf "$RUNNER_TEMP/luals.tar.gz" -C "$RUNNER_TEMP/luals"
+          SMOKE="$RUNNER_TEMP/smoke"
+          mkdir -p "$SMOKE"
+          cat > "$SMOKE/xmake.lua" <<'EOF'
+          set_project("smoke")
+          set_version("0.1.0")
+          add_requires("zlib")
+          if is_plat("linux") then
+              add_defines("PLAT_LINUX")
+          end
+          target("smoke")
+              set_kind("binary")
+              add_files("src/*.c")
+              add_packages("zlib")
+          EOF
+          cat > "$SMOKE/.luarc.json" <<EOF
+          { "runtime.version": "LuaJIT", "workspace.checkThirdParty": false, "workspace.library": ["$LIB"] }
+          EOF
+          cd "$SMOKE"
+          "$RUNNER_TEMP/luals/bin/lua-language-server" --check xmake.lua 2>&1 | tee check.log
+          tail -1 check.log | grep -q "Diagnosis completed, no problems found"
