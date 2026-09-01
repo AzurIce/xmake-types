@@ -1,0 +1,41 @@
+name: regenerate
+
+# 手动触发：重新生成并覆盖所有已有的 xmake/<version> 注解分支。
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.branches.outputs.versions }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: 枚举远程 xmake 分支
+        id: branches
+        run: |
+          set -euo pipefail
+          git ls-remote --heads origin 'refs/heads/xmake/*' \
+            | awk -F/ '{print $NF}' | sort -V > versions.txt
+          versions="$(jq -R -s -c 'split("\n") | map(select(length > 0))' versions.txt)"
+          echo "发现版本: $versions"
+          echo "versions=$versions" >> "$GITHUB_OUTPUT"
+
+  regenerate:
+    needs: discover
+    if: needs.discover.outputs.versions != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ${{ fromJSON(needs.discover.outputs.versions) }}
+    uses: ./.github/workflows/generate.yml
+    with:
+      tag: ${{ matrix.version }}
+      force: true

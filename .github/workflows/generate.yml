@@ -10,11 +10,20 @@ on:
         description: "xmake 版本，如 3.1.2（不带 v）"
         required: true
         type: string
+      force:
+        description: "覆盖已经存在的 xmake/<tag> 分支"
+        required: false
+        default: false
+        type: boolean
   workflow_call:
     inputs:
       tag:
         required: true
         type: string
+      force:
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -47,6 +56,7 @@ jobs:
       - name: 生成并推送 xmake/${{ inputs.tag }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORCE_REGENERATE: ${{ inputs.force && '1' || '0' }}
         run: tools/gen_release.sh "${{ inputs.tag }}"
 
       - name: Smoke test（lua-language-server --check 最小样例）
@@ -72,6 +82,7 @@ jobs:
           cat > "$SMOKE/xmake.lua" <<'EOF'
           set_project("smoke")
           set_version("0.1.0")
+          import("lib.detect.find_tool")
           add_requires("zlib")
           if is_plat("linux") then
               add_defines("PLAT_LINUX")

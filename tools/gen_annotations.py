@@ -62,6 +62,15 @@ STRING_PARAMS = {"name", "p", "file", "dir"}
 # 解释器内建的作用域函数（interpreter.lua 注册，不在 apis() 注册表中）
 BUILTIN_SCOPES = ["target", "option", "rule", "task", "package", "toolchain"]
 
+# 沙箱内建的全局函数（不是作用域函数，不应生成对应的 *_end 函数）
+BUILTIN_FUNCTIONS = [
+    (
+        "import",
+        "导入 xmake 扩展模块",
+        ["---@param name string", "---@param opt? table", "---@return any"],
+    ),
+]
+
 
 # ---------------------------------------------------------------- 源码解析
 
@@ -531,6 +540,9 @@ def gen_dsl(registries: dict, language_apis: dict, version: str,
                     apis[bare] = (cat, [full])
 
     out = [header(version)]
+    out.append("-- 沙箱内建函数（core/sandbox/modules 注册，不在 apis() 注册表中）\n")
+    for name, desc, annotations in BUILTIN_FUNCTIONS:
+        out.append(f"-- {desc}\n" + "\n".join(annotations) + f"\nfunction {name}(name, opt) end\n")
     out.append("-- 内建作用域函数（core/base/interpreter.lua 注册，不在 apis() 注册表中）\n")
     for scope in BUILTIN_SCOPES:
         doc = docs.get(scope)
