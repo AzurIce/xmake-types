@@ -1,0 +1,369 @@
+---@meta
+---xmake version: 3.0.4
+
+-- 目标实例（project/target.lua，138 个公开方法）
+---@class Target
+---@field add fun(self: Target, name: string, ...: any): any
+---@field arch fun(self: Target): any
+---@field artifactfile fun(self: Target, kind: any): any
+---@field autogendir fun(self: Target, opt?: table): any
+---@field autogenfile fun(self: Target, sourcefile: any, opt?: table): any
+---@field basename fun(self: Target): any
+---@field bindir fun(self: Target): any
+---@field cachekey fun(self: Target): any
+---@field check_bigendian fun(self: Target, opt?: table): any
+---@field check_csnippets fun(self: Target, snippets: any, opt?: table): any
+---@field check_cxxsnippets fun(self: Target, snippets: any, opt?: table): any
+---@field check_msnippets fun(self: Target, snippets: any, opt?: table): any
+---@field check_mxxsnippets fun(self: Target, snippets: any, opt?: table): any
+---@field check_sizeof fun(self: Target, typename: any, opt?: table): any
+---@field clone fun(self: Target): any
+---@field compiler fun(self: Target, sourcekind: any): any
+---@field configdir fun(self: Target): any
+---@field configfiles fun(self: Target, outputdir: any): any
+---@field data fun(self: Target, name: string): any
+---@field data_add fun(self: Target, name: string, data: any): any
+---@field data_set fun(self: Target, name: string, data: any): any
+---@field del fun(self: Target, name: string, ...: any): any
+---@field dep fun(self: Target, name: string): any
+---@field dependfile fun(self: Target, objectfile: any): any
+---@field dependfiles fun(self: Target): any
+---@field dependir fun(self: Target, opt?: table): any
+---@field deps fun(self: Target): any
+---@field extraconf fun(self: Target, name: string, item: any, key: any): any
+---@field extraconf_from fun(self: Target, name: string, source: any): any
+---@field extraconf_set fun(self: Target, name: string, item: any, key: any, value: any): any
+---@field extrafiles fun(self: Target, outputdir: any): any
+---@field fileconfig fun(self: Target, sourcefile: any, opt?: table): any
+---@field fileconfig_add fun(self: Target, sourcefile: any, info: any, opt?: table): any
+---@field fileconfig_set fun(self: Target, sourcefile: any, info: any, opt?: table): any
+---@field filename fun(self: Target): any
+---@field filerules fun(self: Target, sourcefile: any): any
+---@field fullname fun(self: Target): any
+---@field get fun(self: Target, name: string, opt?: table): any
+---@field get_from fun(self: Target, name: string, sources: any, opt?: table): any
+---@field get_from_deps fun(self: Target, name: string, opt?: table): any
+---@field get_from_opts fun(self: Target, name: string, opt?: table): any
+---@field get_from_pkgs fun(self: Target, name: string, opt?: table): any
+---@field has_cflags fun(self: Target, flags: any, opt?: table): any
+---@field has_cfuncs fun(self: Target, funcs: any, opt?: table): any
+---@field has_cincludes fun(self: Target, includes: any, opt?: table): any
+---@field has_ctypes fun(self: Target, types: any, opt?: table): any
+---@field has_cxxflags fun(self: Target, flags: any, opt?: table): any
+---@field has_cxxfuncs fun(self: Target, funcs: any, opt?: table): any
+---@field has_cxxincludes fun(self: Target, includes: any, opt?: table): any
+---@field has_cxxtypes fun(self: Target, types: any, opt?: table): any
+---@field has_features fun(self: Target, features: any, opt?: table): any
+---@field has_runtime fun(self: Target, ...: any): any
+---@field has_sourcekind fun(self: Target, ...: any): any
+---@field has_tool fun(self: Target, toolkind: any, ...: any): any
+---@field headerfiles fun(self: Target, outputdir: any, opt?: table): any
+---@field includedir fun(self: Target): any
+---@field info fun(self: Target): any
+---@field installdir fun(self: Target, ...: any): any
+---@field installfiles fun(self: Target, outputdir: any, opt?: table): any
+---@field is_arch fun(self: Target, ...: any): any
+---@field is_arch64 fun(self: Target): any
+---@field is_binary fun(self: Target): any
+---@field is_cross fun(self: Target): any
+---@field is_default fun(self: Target): any
+---@field is_enabled fun(self: Target): any
+---@field is_headeronly fun(self: Target): any
+---@field is_library fun(self: Target): any
+---@field is_moduleonly fun(self: Target): any
+---@field is_object fun(self: Target): any
+---@field is_phony fun(self: Target): any
+---@field is_plat fun(self: Target, ...: any): any
+---@field is_rebuilt fun(self: Target): any
+---@field is_shared fun(self: Target): any
+---@field is_static fun(self: Target): any
+---@field kind fun(self: Target): any
+---@field libdir fun(self: Target): any
+---@field license fun(self: Target): any
+---@field linkargv fun(self: Target, objectfiles: any): any
+---@field linkcmd fun(self: Target, objectfiles: any): any
+---@field linker fun(self: Target): any
+---@field linkflags fun(self: Target): any
+---@field linkname fun(self: Target): any
+---@field name fun(self: Target): any
+---@field name_set fun(self: Target, name: string): any
+---@field namespace fun(self: Target): any
+---@field new fun(name: string, info: any): any
+---@field objectdir fun(self: Target, opt?: table): any
+---@field objectfile fun(self: Target, sourcefile: any): any
+---@field objectfiles fun(self: Target): any
+---@field opt fun(self: Target, name: string, opt?: table): any
+---@field opts fun(self: Target, opt?: table): any
+---@field orderdeps fun(self: Target, opt?: table): any
+---@field orderopts fun(self: Target, opt?: table): any
+---@field orderpkgs fun(self: Target, opt?: table): any
+---@field orderules fun(self: Target): any
+---@field packagedir fun(self: Target): any
+---@field pcheaderfile fun(self: Target, langkind: any): any
+---@field pcheaderfile_set fun(self: Target, langkind: any, headerfile: any): any
+---@field pcoutputfile fun(self: Target, langkind: any): any
+---@field pkg fun(self: Target, name: string, opt?: table): any
+---@field pkgconfig fun(self: Target, pkgname: any): any
+---@field pkgenvs fun(self: Target): any
+---@field pkgs fun(self: Target, opt?: table): any
+---@field plat fun(self: Target): any
+---@field platform fun(self: Target): any
+---@field policy fun(self: Target, name: string): any
+---@field prefixdir fun(self: Target): any
+---@field remove fun(self: Target, name: string, ...: any): any
+---@field rule fun(self: Target, name: string): any
+---@field rule_add fun(self: Target, r: any): any
+---@field rule_enable fun(self: Target, name: string, enabled: any): any
+---@field rule_is_enabled fun(self: Target, name: string): any
+---@field rules fun(self: Target): any
+---@field rundir fun(self: Target): any
+---@field runtimes fun(self: Target): any
+---@field script fun(self: Target, name: string, generic: any): any
+---@field scriptdir fun(self: Target): any
+---@field set fun(self: Target, name: string, ...: any): any
+---@field soname fun(self: Target): any
+---@field sourcebatches fun(self: Target): any
+---@field sourcecount fun(self: Target): any
+---@field sourcefiles fun(self: Target): any
+---@field sourceinfo fun(self: Target, name: string, item: any): any
+---@field sourcekind_of fun(self: Target, sourcefile: any): any
+---@field sourcekinds fun(self: Target): any
+---@field symbolfile fun(self: Target): any
+---@field targetdir fun(self: Target): any
+---@field targetfile fun(self: Target): any
+---@field targetkind fun(self: Target): any
+---@field tool fun(self: Target, toolkind: any): any
+---@field toolchain fun(self: Target, name: string): any
+---@field toolchains fun(self: Target): any
+---@field toolconfig fun(self: Target, name: string): any
+---@field type fun(self: Target): any
+---@field values fun(self: Target, name: string, sourcefile: any): any
+---@field values_add fun(self: Target, name: string, ...: any): any
+---@field values_set fun(self: Target, name: string, ...: any): any
+---@field version fun(self: Target): any
+
+-- 选项实例（project/option.lua，26 个公开方法）
+---@class Option
+---@field add fun(self: Option, name: string, ...: any): any
+---@field cachekey fun(self: Option): any
+---@field check fun(self: Option): any
+---@field clear fun(self: Option): any
+---@field del fun(self: Option, name: string, ...: any): any
+---@field dep fun(self: Option, name: string): any
+---@field deps fun(self: Option): any
+---@field description fun(self: Option): any
+---@field enable fun(self: Option, enabled: any, opt?: table): any
+---@field enabled fun(self: Option): any
+---@field extraconf fun(self: Option, name: string, item: any, key: any): any
+---@field fullname fun(self: Option): any
+---@field get fun(self: Option, name: string): any
+---@field info fun(self: Option): any
+---@field name fun(self: Option): any
+---@field namespace fun(self: Option): any
+---@field new fun(name: string, info: any): any
+---@field orderdeps fun(self: Option): any
+---@field remove fun(self: Option, name: string, ...: any): any
+---@field script fun(self: Option, name: string): any
+---@field set fun(self: Option, name: string, ...: any): any
+---@field set_value fun(self: Option, value: any): any
+---@field showmenu fun(self: Option): any
+---@field sourceinfo fun(self: Option, name: string, item: any): any
+---@field type fun(self: Option): any
+---@field value fun(self: Option): any
+
+-- 规则实例（project/rule.lua，15 个公开方法）
+---@class Rule
+---@field add fun(self: Rule, name: string, ...: any): any
+---@field clone fun(self: Rule): any
+---@field dep fun(self: Rule, name: string): any
+---@field deps fun(self: Rule): any
+---@field extraconf fun(self: Rule, name: string, item: any, key: any): any
+---@field extraconf_set fun(self: Rule, name: string, item: any, key: any, value: any): any
+---@field fullname fun(self: Rule): any
+---@field get fun(self: Rule, name: string): any
+---@field kind fun(self: Rule): any
+---@field name fun(self: Rule): any
+---@field name_set fun(self: Rule, name: string): any
+---@field namespace fun(self: Rule): any
+---@field orderdeps fun(self: Rule): any
+---@field script fun(self: Rule, name: string, generic: any): any
+---@field set fun(self: Rule, name: string, ...: any): any
+
+-- 包实例（package/package.lua，164 个公开方法）
+---@class Package
+---@field add fun(self: Package, name: string, ...: any): any
+---@field addenv fun(self: Package, name: string, ...: any): any
+---@field alias fun(self: Package): any
+---@field arch fun(self: Package): any
+---@field arch_set fun(self: Package, arch: any): any
+---@field artifacts_set fun(self: Package, artifacts_info: any): any
+---@field base fun(self: Package): any
+---@field branch fun(self: Package): any
+---@field build_addenv fun(self: Package, name: string, ...: any): any
+---@field build_envs fun(self: Package, lazy_loading: any): any
+---@field build_getenv fun(self: Package, name: string): any
+---@field build_setenv fun(self: Package, name: string, ...: any): any
+---@field builddir fun(self: Package): any
+---@field buildhash fun(self: Package): any
+---@field buildir fun(self: Package): any
+---@field cachedir fun(self: Package): any
+---@field check_csnippets fun(self: Package, snippets: any, opt?: table): any
+---@field check_cxxsnippets fun(self: Package, snippets: any, opt?: table): any
+---@field check_fcsnippets fun(self: Package, snippets: any, opt?: table): any
+---@field check_importfiles fun(self: Package, names: any, opt?: table): any
+---@field check_msnippets fun(self: Package, snippets: any, opt?: table): any
+---@field check_mxxsnippets fun(self: Package, snippets: any, opt?: table): any
+---@field check_sizeof fun(self: Package, typename: any, opt?: table): any
+---@field commit fun(self: Package): any
+---@field compiler fun(self: Package, sourcekind: any): any
+---@field component fun(self: Package, name: string): any
+---@field components fun(self: Package): any
+---@field components_default fun(self: Package): any
+---@field components_deps fun(self: Package): any
+---@field components_orderlist fun(self: Package): any
+---@field config fun(self: Package, name: string): any
+---@field config_set fun(self: Package, name: string, value: any): any
+---@field configs fun(self: Package): any
+---@field data fun(self: Package, name: string): any
+---@field data_add fun(self: Package, name: string, data: any): any
+---@field data_set fun(self: Package, name: string, data: any): any
+---@field debug fun(self: Package): any
+---@field dep fun(self: Package, name: string): any
+---@field deps fun(self: Package): any
+---@field description fun(self: Package): any
+---@field displayname fun(self: Package): any
+---@field displayname_set fun(self: Package, displayname: any): any
+---@field envs fun(self: Package): any
+---@field envs_enter fun(self: Package): any
+---@field envs_load fun(self: Package): any
+---@field exists fun(self: Package): any
+---@field extraconf fun(self: Package, name: string, item: any, key: any): any
+---@field extraconf_set fun(self: Package, name: string, item: any, key: any, value: any): any
+---@field extsources fun(self: Package): any
+---@field fallback_build fun(self: Package): any
+---@field fetch fun(self: Package, opt?: table): any
+---@field fetch_librarydeps fun(self: Package): any
+---@field filelock fun(self: Package): any
+---@field find_package fun(self: Package, name: string, opt?: table): any
+---@field find_tool fun(self: Package, name: string, opt?: table): any
+---@field fullname fun(self: Package): any
+---@field get fun(self: Package, name: string): any
+---@field getenv fun(self: Package, name: string): any
+---@field gitref fun(self: Package): any
+---@field group fun(self: Package): any
+---@field has_cflags fun(self: Package, flags: any, opt?: table): any
+---@field has_cfuncs fun(self: Package, funcs: any, opt?: table): any
+---@field has_cincludes fun(self: Package, includes: any, opt?: table): any
+---@field has_ctypes fun(self: Package, types: any, opt?: table): any
+---@field has_cxxflags fun(self: Package, flags: any, opt?: table): any
+---@field has_cxxfuncs fun(self: Package, funcs: any, opt?: table): any
+---@field has_cxxincludes fun(self: Package, includes: any, opt?: table): any
+---@field has_cxxtypes fun(self: Package, types: any, opt?: table): any
+---@field has_features fun(self: Package, features: any, opt?: table): any
+---@field has_runtime fun(self: Package, ...: any): any
+---@field has_tool fun(self: Package, toolkind: any, ...: any): any
+---@field installdir fun(self: Package, ...: any): any
+---@field is_arch fun(self: Package, ...: any): any
+---@field is_arch64 fun(self: Package): any
+---@field is_binary fun(self: Package): any
+---@field is_binary_embed fun(self: Package): any
+---@field is_built fun(self: Package): any
+---@field is_cross fun(self: Package): any
+---@field is_debug fun(self: Package): any
+---@field is_fetchonly fun(self: Package): any
+---@field is_headeronly fun(self: Package): any
+---@field is_host fun(self: Package): any
+---@field is_library fun(self: Package): any
+---@field is_local fun(self: Package): any
+---@field is_moduleonly fun(self: Package): any
+---@field is_optional fun(self: Package): any
+---@field is_parallelize fun(self: Package): any
+---@field is_plat fun(self: Package, ...: any): any
+---@field is_precompiled fun(self: Package): any
+---@field is_private fun(self: Package): any
+---@field is_source_embed fun(self: Package): any
+---@field is_supported fun(self: Package): any
+---@field is_system fun(self: Package): any
+---@field is_targetarch fun(self: Package, ...: any): any
+---@field is_targetos fun(self: Package, ...: any): any
+---@field is_template fun(self: Package): any
+---@field is_thirdparty fun(self: Package): any
+---@field is_toolchain fun(self: Package): any
+---@field is_toplevel fun(self: Package): any
+---@field is_verify fun(self: Package): any
+---@field kind fun(self: Package): any
+---@field label fun(self: Package): any
+---@field librarydep fun(self: Package, name: string, opt?: table): any
+---@field librarydeps fun(self: Package, opt?: table): any
+---@field license fun(self: Package): any
+---@field linker fun(self: Package, targetkind: any, sourcekinds: any): any
+---@field lock fun(self: Package, opt?: table): any
+---@field manifest_file fun(self: Package): any
+---@field manifest_load fun(self: Package): any
+---@field manifest_save fun(self: Package): any
+---@field mark_as_pathenv fun(self: Package, name: string): any
+---@field mode fun(self: Package): any
+---@field name fun(self: Package): any
+---@field namespace fun(self: Package): any
+---@field new fun(name: string, info: any, opt?: table): any
+---@field orderdeps fun(self: Package): any
+---@field originfile fun(self: Package): any
+---@field originfile_set fun(self: Package, filepath: any): any
+---@field parents fun(self: Package, packagename: any): any
+---@field parents_add fun(self: Package, ...: any): any
+---@field patches fun(self: Package): any
+---@field plaindeps fun(self: Package): any
+---@field plat fun(self: Package): any
+---@field plat_set fun(self: Package, plat: any): any
+---@field policy fun(self: Package, name: string): any
+---@field references fun(self: Package): any
+---@field repo fun(self: Package): any
+---@field requireinfo fun(self: Package): any
+---@field requireinfo_set fun(self: Package, requireinfo: any): any
+---@field resource fun(self: Package, name: string): any
+---@field resourcedir fun(self: Package, name: string): any
+---@field resourcefile fun(self: Package, name: string): any
+---@field resources fun(self: Package): any
+---@field revision fun(self: Package, url_alias: any): any
+---@field rulesdir fun(self: Package): any
+---@field runtimes fun(self: Package): any
+---@field script fun(self: Package, name: string, generic: any): any
+---@field scriptdir fun(self: Package): any
+---@field set fun(self: Package, name: string, ...: any): any
+---@field setenv fun(self: Package, name: string, ...: any): any
+---@field sourcedir fun(self: Package): any
+---@field sourcehash fun(self: Package, url_alias: any): any
+---@field sourceinfo fun(self: Package, name: string, item: any): any
+---@field tag fun(self: Package): any
+---@field targetarch fun(self: Package): any
+---@field targetos fun(self: Package): any
+---@field tool fun(self: Package, toolkind: any): any
+---@field toolchain fun(self: Package, name: string): any
+---@field toolchains fun(self: Package): any
+---@field toolconfig fun(self: Package, name: string): any
+---@field type fun(self: Package): any
+---@field unlock fun(self: Package): any
+---@field url_alias fun(self: Package, url: any): any
+---@field url_excludes fun(self: Package, url: any): any
+---@field url_http_headers fun(self: Package, url: any): any
+---@field url_includes fun(self: Package, url: any): any
+---@field url_version fun(self: Package, url: any): any
+---@field urls fun(self: Package): any
+---@field urls_set fun(self: Package, urls: any): any
+---@field use_external_includes fun(self: Package): any
+---@field version fun(self: Package): any
+---@field version_set fun(self: Package, version: any, source: any): any
+---@field version_str fun(self: Package): any
+---@field versions fun(self: Package): any
+
+-- 包组件实例（package/component.lua，9 个公开方法）
+---@class PackageComponent
+---@field add fun(self: PackageComponent, name: string, ...: any): any
+---@field extraconf fun(self: PackageComponent, name: string, item: any, key: any): any
+---@field extraconf_set fun(self: PackageComponent, name: string, item: any, key: any, value: any): any
+---@field get fun(self: PackageComponent, name: string): any
+---@field name fun(self: PackageComponent): any
+---@field new fun(name: string, opt?: table): any
+---@field package fun(self: PackageComponent): any
+---@field set fun(self: PackageComponent, name: string, ...: any): any
+---@field type fun(self: PackageComponent): any
